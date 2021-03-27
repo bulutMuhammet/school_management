@@ -1,0 +1,194 @@
+{% extends "user/layout.html" %}
+{% load static %}
+{% block head %}
+    <title>Kayıt Ol</title>
+{% endblock %}
+{% block body %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-8 col-xl-6">
+                <div class="row">
+                    <div class="col text-center">
+                        <h1>Kayıt Ol</h1>
+                    </div>
+
+                </div>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} " role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <form method="post" id="register_form" data-class-url="{% url 'user:load_clasrooms' %}">
+                    {% csrf_token %}
+                    <div class="row align-items-center mt-4">
+                        <div class="col">
+                            <label class="font-weight-bold" for="first_name">Ad</label>
+                            {{ form.first_name }}
+
+
+                        </div>
+                        <div class="col">
+                            <label class="font-weight-bold" for="last_name">Soyad</label>
+                            {{ form.last_name }}
+
+
+                        </div>
+                    </div>
+                    <div class="row align-items-center mt-4">
+                        <div class="col">
+                            <label class="font-weight-bold" for="name">Kullanıcı Adı</label>
+                            {{ form.username }}
+                            {{ form.errors.username }}
+
+                        </div>
+                    </div>
+                    <div class="row align-items-center mt-4">
+                        <div class="col">
+                            <label class="font-weight-bold" for="email">Eposta</label>
+                            {{ form.email }}
+                            {{ form.errors.email }}
+
+                        </div>
+                    </div>
+                    <div class="row align-items-center mt-4">
+                        <div class="col">
+                            <label class="font-weight-bold" for="password">Parola</label>
+                            {{ form.password1 }}
+
+
+                        </div>
+                        <div class="col">
+                            <label class="font-weight-bold" for="password">Parola Onayı</label>
+                            {{ form.password2 }}
+
+
+                        </div>
+                    </div>
+                    {{ form.errors.password1 }}
+
+                    {{ form.errors.password2 }}
+                    <div class="row align-items-center">
+                        <div class="col mt-4">
+                            <div class="row">
+
+                                <div class="col-4">
+                                    <div class="form-check ">
+                                        <input class="form-check-input" onclick="handleClick(this)" type="radio"
+                                               name="roles" id="ogrenci"
+                                               value="ogrenci" checked>
+                                        <label class="form-check-label" for="ogrenci">
+                                            Öğrenciyim
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-check ">
+                                        <input class="form-check-input" onclick="handleClick(this)" type="radio"
+                                               name="roles" id="ogretmen"
+                                               value="ogretmen">
+                                        <label class="form-check-label" for="ogretmen">
+                                            Öğretmenim
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-check ">
+                                        <input class="form-check-input" onclick="handleClick(this)" type="radio"
+                                               name="roles" id="mudur"
+                                               value="mudur">
+                                        <label class="form-check-label" for="mudur">
+                                            Müdürüm
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center mt-4">
+                        <div class="col">
+                            <label class="font-weight-bold" for="password">Okul</label>
+
+                            <select id="school_select" name="school" required class="form-control">
+                                <option value="">Okul Seçin</option>
+
+                                {% for school in schools %}
+                                    <option value="{{ school.id }}">{{ school }}</option>
+                                {% endfor %}
+
+                            </select>
+
+
+                        </div>
+
+                    </div>
+                    <div id="class_div" class="row align-items-center mt-4">
+                        <div class="col">
+                            <label class="font-weight-bold" for="class_select">Sınıf</label>
+                            <select id="class_select" required name="classroom" class="form-control">
+                                {% include "includes/classroom_list.html" %}
+                            </select>
+
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row justify-content-start mt-4">
+                        <div class="col">
+
+                            <button class="btn btn-primary mt-4 btn-lg btn-block mt-4 " type="submit">Kayıt Ol</button>
+                            <div class="mt-3 text-center">
+                                Zaten bir hesabın var mı? <a href="{% url "user:login" %}"> Giriş Yap</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        $("#school_select").change(function () {
+            var url = $("#register_form").attr("data-class-url");
+            var schoolId = $(this).val();
+            if (schoolId!==""){
+                $.ajax({
+                url: url,
+                data: {
+                    'school': schoolId
+                },
+                success: function (data) {
+                    $("#class_select").html(data);
+                }
+            });
+            }
+
+
+        });
+    </script>
+    <script>
+        var password = document.getElementById("id_password1")
+        var confirm_password = document.getElementById("id_password2");
+
+        function validatePassword() {
+            if (password.value !== confirm_password.value) {
+                confirm_password.setCustomValidity("Parolalar eşleşmiyor!");
+            } else {
+                confirm_password.setCustomValidity('');
+            }
+
+        }
+
+        password.onkeyup = validatePassword;
+        confirm_password.onkeyup = validatePassword;
+
+        function handleClick(radio) {
+            document.getElementById("class_div").hidden = radio.value === "mudur";
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "dashboard/layout.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block head %}
+    <title>Profili Güncelle</title>
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid mt-2">
+     <ol class="breadcrumb  mb-4 mt-2">
+                        <li class="breadcrumb-item ">Yönetim Sistemi</li>
+                        <li class="breadcrumb-item active">Profili Düzenle</li>
+     </ol>
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == "error" %}
+                <div class="alert alert-danger " role="alert">
+
+            {% else %}
+                <div class="alert alert-{{ message.tags }} " role="alert">
+
+            {% endif %}
+        {{ message }}
+
+        </div>
+        {% endfor %}
+    {% endif %}
+<div class="row  justify-content-md-center  mt-3">
+    <div class="col-8   border">
+        <h3>Profili Düzenle </h3>
+
+        <form method="post" id="edit_form" data-class-url="{% url 'user:load_clasrooms' %}">
+            {% csrf_token %}
+            {{ u_form|crispy }}
+            {{ p_form|crispy }}
+            <button class="btn btn-primary mt-4 btn-lg btn-block mt-4 " type="submit">Gönder</button>
+
+        </form>
+            <a href="{% url "dashboard:index" %}" class="btn btn-warning mt-4 btn-lg btn-block mt-4 " type="submit">Geri Dön</a>
+
+    </div>
+</div>
+</div>
+
+
+
+
+
+{% endblock %}
+{% block script %}
+ <script>
+    $("#id_school").change(function () {
+            var url = $("#edit_form").attr("data-class-url");
+            var schoolId = $(this).val();
+            if (schoolId!==""){
+                get_data(url,schoolId)
+            }
+
+
+        });
+
+    function get_data(url,schoolId){
+        $.ajax({
+                url: url,
+                data: {
+                    'school': schoolId
+                },
+                success: function (data) {
+                    $("#id_classroom").html(data);
+                    console.log(data)
+                }
+            });
+    }
+
+    document.onload=get_data($("#edit_form").attr("data-class-url"),$("#id_school").val())
+
+    </script>
+{% endblock %}
